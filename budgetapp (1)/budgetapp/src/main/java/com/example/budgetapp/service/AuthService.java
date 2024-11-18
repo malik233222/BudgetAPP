@@ -17,15 +17,15 @@ import java.util.Optional;
 public class AuthService {
 
     private final UserRepository userRepository;
+    private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtUtils jwtUtils;
-    private final RoleRepository roleRepository;
 
-    public AuthService(UserRepository userRepository, PasswordEncoder passwordEncoder, JwtUtils jwtUtils, RoleRepository roleRepository) {
+    public AuthService(UserRepository userRepository, RoleRepository roleRepository, PasswordEncoder passwordEncoder, JwtUtils jwtUtils) {
         this.userRepository = userRepository;
+        this.roleRepository = roleRepository;
         this.passwordEncoder = passwordEncoder;
         this.jwtUtils = jwtUtils;
-        this.roleRepository = roleRepository;
     }
 
     public AuthResponseDto register(RegisterRequestDto request) {
@@ -38,7 +38,7 @@ public class AuthService {
         user.setUsername(request.getUsername());
         user.setPassword(passwordEncoder.encode(request.getPassword()));
 
-        // Assign default role
+        // İstifadəçiyə ROLE_USER əlavə edilir
         Role userRole = roleRepository.findByName("ROLE_USER")
                 .orElseThrow(() -> new RuntimeException("Default role not found"));
         user.getRoles().add(userRole);
@@ -48,6 +48,7 @@ public class AuthService {
         String token = jwtUtils.generateToken(user.getUsername());
         return new AuthResponseDto(token, "Registration successful");
     }
+
 
     public AuthResponseDto login(LoginRequestDto request) {
         User user = userRepository.findByUsername(request.getUsername())

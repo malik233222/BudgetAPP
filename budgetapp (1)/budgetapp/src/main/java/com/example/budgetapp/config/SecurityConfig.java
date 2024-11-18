@@ -14,14 +14,13 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.csrf().disable()
                 .authorizeHttpRequests()
-                .requestMatchers("/api/auth/**").permitAll()
-                .requestMatchers("/admin/**").hasRole("ADMIN")
+                .requestMatchers("/api/auth/**").permitAll() // Auth APIs icazəli
+                .requestMatchers("/api/categories/**").hasRole("USER") // Kateqoriyalar üçün ROLE_USER tələb olunur
                 .anyRequest().authenticated()
                 .and()
-                .httpBasic(); // or JWT-based security
+                .httpBasic();
         return http.build();
     }
-
 
     @Bean
     public PasswordEncoder passwordEncoder() {

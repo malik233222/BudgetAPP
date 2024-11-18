@@ -22,16 +22,19 @@ public class CategoryService {
         this.incomeRepo = incomeRepo;
     }
 
-    // Xərc Kateqoriyaları
+    // Expense Categories
     public List<CategoryResponseDto> getAllExpenseCategories(Long userId) {
-        return expenseRepo.findByUserId(userId).stream().map(this::mapToDto).collect(Collectors.toList());
+        return expenseRepo.findByUserId(userId).stream()
+                .map(this::mapExpenseToDto)
+                .collect(Collectors.toList());
     }
 
     public CategoryResponseDto createExpenseCategory(CategoryRequestDto request, Long userId) {
         ExpenseCategory category = new ExpenseCategory();
         category.setName(request.getName());
         category.setUserId(userId);
-        return mapToDto(expenseRepo.save(category));
+        category.setType("EXPENSE");
+        return mapExpenseToDto(expenseRepo.save(category));
     }
 
     public void deleteExpenseCategory(Long id, Long userId) {
@@ -43,16 +46,19 @@ public class CategoryService {
         expenseRepo.delete(category);
     }
 
-    // Gəlir Kateqoriyaları
+    // Income Categories
     public List<CategoryResponseDto> getAllIncomeCategories(Long userId) {
-        return incomeRepo.findByUserId(userId).stream().map(this::mapToDto).collect(Collectors.toList());
+        return incomeRepo.findByUserId(userId).stream()
+                .map(this::mapIncomeToDto)
+                .collect(Collectors.toList());
     }
 
     public CategoryResponseDto createIncomeCategory(CategoryRequestDto request, Long userId) {
         IncomeCategory category = new IncomeCategory();
         category.setName(request.getName());
         category.setUserId(userId);
-        return mapToDto(incomeRepo.save(category));
+        category.setType("INCOME");
+        return mapIncomeToDto(incomeRepo.save(category));
     }
 
     public void deleteIncomeCategory(Long id, Long userId) {
@@ -64,16 +70,13 @@ public class CategoryService {
         incomeRepo.delete(category);
     }
 
-    // Helper: DTO Map
-    private CategoryResponseDto mapToDto(Object category) {
-        CategoryResponseDto dto = new CategoryResponseDto();
-        if (category instanceof ExpenseCategory expense) {
-            dto.setId(expense.getId());
-            dto.setName(expense.getName());
-        } else if (category instanceof IncomeCategory income) {
-            dto.setId(income.getId());
-            dto.setName(income.getName());
-        }
-        return dto;
+    // Helper: Map Expense Category to DTO
+    private CategoryResponseDto mapExpenseToDto(ExpenseCategory category) {
+        return new CategoryResponseDto(category.getId(), category.getName());
+    }
+
+    // Helper: Map Income Category to DTO
+    private CategoryResponseDto mapIncomeToDto(IncomeCategory category) {
+        return new CategoryResponseDto(category.getId(), category.getName());
     }
 }
